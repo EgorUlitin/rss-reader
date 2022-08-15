@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 import axios from 'axios';
 import _ from 'lodash';
 import parser from './parser.js';
@@ -36,11 +37,9 @@ const updatePosts = (watchedState, delay) => {
               }
             }
           })
-          .catch((err) => {
-            console.log(err, 'updater');
-            // watchedState.processState = 'error';
-            // watchedState.error = err.message;
-            // watchedState.error = 'erorrs.notValid';
+          .catch(() => {
+            watchedState.processState = 'error';
+            watchedState.error = 'erorrs.netWorkErorr';
           });
       });
     }

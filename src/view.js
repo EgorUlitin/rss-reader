@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+/* eslint-disable no-param-reassign */
 import onChange from 'on-change';
 import axios from 'axios';
 import i18n from 'i18next';
@@ -16,11 +18,9 @@ import renderModal from './renderModal.js';
 const handleProcessState = (elements, processState) => {
   switch (processState) {
     case 'success':
-      // eslint-disable-next-line no-param-reassign
       elements.submitButton.disabled = false;
       elements.outputError.classList.remove('text-danger');
       elements.outputError.classList.add('text-success');
-      // eslint-disable-next-line no-param-reassign
       elements.input.value = '';
       break;
 
@@ -28,13 +28,11 @@ const handleProcessState = (elements, processState) => {
       elements.input.classList.add('is-invalid');
       elements.outputError.classList.remove('text-success');
       elements.outputError.classList.add('text-danger');
-      // eslint-disable-next-line no-param-reassign
       elements.submitButton.disabled = false;
       break;
 
     case 'sending':
       elements.input.classList.remove('is-invalid');
-      // eslint-disable-next-line no-param-reassign
       elements.submitButton.disabled = true;
       break;
 
@@ -151,6 +149,12 @@ export default () => {
 
                 const parsed = parser(res.data.contents);
 
+                if (parsed.querySelector('parsererror')) {
+                  watchedState.processState = 'error';
+                  watchedState.error = 'erorrs.notContainValidRss';
+                  return;
+                }
+
                 const normalized = normalize(parsed);
 
                 const feedId = _.uniqueId();
@@ -159,7 +163,6 @@ export default () => {
                   feedId, title, link, id: _.uniqueId(), description,
                 }));
 
-                // eslint-disable-next-line max-len
                 watchedState.data.feeds = [...watchedState.data.feeds, { id: feedId, title: normalized.title, description: normalized.description }];
 
                 watchedState.data.posts = [...watchedState.data.posts, ...postsWithIds];
@@ -169,7 +172,7 @@ export default () => {
             })
             .catch(() => {
               watchedState.processState = 'error';
-              watchedState.error = 'erorrs.notContainValidRss';
+              watchedState.error = 'erorrs.netWorkErorr';
             });
         })
         .catch(() => {
