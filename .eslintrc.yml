@@ -11,8 +11,6 @@ extends:
   - airbnb-base
   - 'plugin:jest/recommended'
 
-parser: "@babel/eslint-parser"
-
 parserOptions:
   ecmaVersion: latest
   sourceType: module
