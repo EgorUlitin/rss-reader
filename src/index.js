@@ -10,7 +10,46 @@ import _ from 'lodash';
 import * as yup from 'yup';
 import resources from './locales/index.js';
 import parser from './parser.js';
-import { render, updatePosts } from './view.js';
+import render from './view.js';
+
+const updatePosts = (watchedState, delay) => {
+  setTimeout(() => {
+    if (watchedState.addedFeeds.length !== 0) {
+      watchedState.addedFeeds.forEach((link) => {
+        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`)
+          .then((res) => {
+            const {
+              title, description, posts,
+            } = parser(res.data.contents);
+
+            const existingFeed = watchedState.data.feeds
+              .find((feed) => (feed.title === title) && (feed.description === description));
+
+            const existingPosts = watchedState.data.posts
+              .filter(({ feedId }) => feedId === existingFeed.id);
+
+            const newPosts = _.unionBy(existingPosts, posts, 'link')
+              .filter((post) => !post.feedId)
+              .map((post) => ({
+                id: _.uniqueId(),
+                title: post.title,
+                link: post.link,
+                feedId: existingFeed.id,
+              }));
+
+            if (newPosts.length !== 0) {
+              watchedState.data.posts.push(...newPosts);
+            }
+          })
+          .catch(() => {
+            watchedState.processState = 'error';
+            watchedState.error = 'erorrs.netWorkErorr';
+          });
+      });
+    }
+    updatePosts(watchedState, delay);
+  }, delay);
+};
 
 const app = () => {
   const elements = {
