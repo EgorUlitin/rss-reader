@@ -9,29 +9,27 @@ export const updatePosts = (watchedState, delay) => {
       watchedState.addedFeeds.forEach((link) => {
         axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`)
           .then((res) => {
-            if (res.status === 200) {
-              const {
-                title, description, posts,
-              } = parser(res.data.contents);
+            const {
+              title, description, posts,
+            } = parser(res.data.contents);
 
-              const existingFeed = watchedState.data.feeds
-                .find((feed) => (feed.title === title) && (feed.description === description));
+            const existingFeed = watchedState.data.feeds
+              .find((feed) => (feed.title === title) && (feed.description === description));
 
-              const existingPosts = watchedState.data.posts
-                .filter(({ feedId }) => feedId === existingFeed.id);
+            const existingPosts = watchedState.data.posts
+              .filter(({ feedId }) => feedId === existingFeed.id);
 
-              const newPosts = _.unionBy(existingPosts, posts, 'link')
-                .filter((post) => !post.feedId)
-                .map((post) => ({
-                  id: _.uniqueId(),
-                  title: post.title,
-                  link: post.link,
-                  feedId: existingFeed.id,
-                }));
+            const newPosts = _.unionBy(existingPosts, posts, 'link')
+              .filter((post) => !post.feedId)
+              .map((post) => ({
+                id: _.uniqueId(),
+                title: post.title,
+                link: post.link,
+                feedId: existingFeed.id,
+              }));
 
-              if (newPosts.length !== 0) {
-                watchedState.data.posts.push(...newPosts);
-              }
+            if (newPosts.length !== 0) {
+              watchedState.data.posts.push(...newPosts);
             }
           })
           .catch(() => {
