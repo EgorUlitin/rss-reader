@@ -1,4 +1,3 @@
-// eslint-disable-next-line consistent-return
 export default (data) => {
   const feed = {
     posts: [],
@@ -8,8 +7,9 @@ export default (data) => {
   const parsed = parser.parseFromString(data, 'application/xml');
 
   if (parsed.querySelector('parsererror')) {
-    // eslint-disable-next-line no-throw-literal
-    throw 'Ошибка парсинга';
+    const error = new Error();
+    error.message = 'Ошибка парсинга';
+    throw error;
   }
 
   const dataForNormalize = parsed.querySelector('channel');

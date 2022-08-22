@@ -12,11 +12,15 @@ import resources from './locales/index.js';
 import parser from './parser.js';
 import render from './view.js';
 
+const getProxyUrl = (link) => `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`;
+
 const updatePosts = (watchedState, delay) => {
   setTimeout(() => {
     if (watchedState.addedFeeds.length !== 0) {
       watchedState.addedFeeds.forEach((link) => {
-        axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`)
+        const proxyUrl = getProxyUrl(link);
+
+        axios.get(proxyUrl)
           .then((res) => {
             const {
               title, description, posts,
@@ -51,7 +55,61 @@ const updatePosts = (watchedState, delay) => {
   }, delay);
 };
 
-const app = () => {
+const loadRss = (watchedState, proxyUrl) => {
+  axios.get(proxyUrl)
+    .then((res) => {
+      if (res.status === 200) {
+        watchedState.processState = 'success';
+        watchedState.error = 'successfully';
+        watchedState.addedFeeds.push(watchedState.currentUrl);
+
+        const normalized = parser(res.data.contents);
+
+        const feedId = _.uniqueId();
+
+        const postsWithIds = normalized.posts.map(({ title, link, description }) => ({
+          feedId, title, link, id: _.uniqueId(), description,
+        }));
+
+        watchedState.data.feeds = [...watchedState.data.feeds, { id: feedId, title: normalized.title, description: normalized.description }];
+
+        watchedState.data.posts = [...watchedState.data.posts, ...postsWithIds];
+
+        updatePosts(watchedState, 5000);
+      }
+    })
+    .catch((err) => {
+      if (err.message === 'Ошибка парсинга') {
+        watchedState.processState = 'error';
+        watchedState.error = 'erorrs.notContainValidRss';
+        return;
+      }
+      watchedState.processState = 'error';
+      watchedState.error = 'erorrs.netWorkErorr';
+    });
+};
+
+const validateUrl = (watchedState, schema) => {
+  if (watchedState.addedFeeds.includes(watchedState.currentUrl)) {
+    watchedState.processState = 'error';
+    watchedState.error = 'erorrs.rssExist';
+  } else {
+    schema.validate(watchedState.currentUrl)
+      .then(() => {
+        watchedState.error = '';
+        watchedState.processState = 'sending';
+
+        const proxyUrl = getProxyUrl(watchedState.currentUrl);
+
+        loadRss(watchedState, proxyUrl);
+      })
+      .catch(() => {
+        watchedState.processState = 'error';
+        watchedState.error = 'erorrs.notValid';
+      });
+  }
+};
+export default () => {
   const elements = {
     outputError: document.querySelector('#error-input'),
     input: document.querySelector('#url-input'),
@@ -103,52 +161,7 @@ const app = () => {
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
 
-    if (watchedState.addedFeeds.includes(watchedState.currentUrl)) {
-      watchedState.processState = 'error';
-      watchedState.error = 'erorrs.rssExist';
-    } else {
-      schema.validate(watchedState.currentUrl)
-        .then(() => {
-          watchedState.error = '';
-          watchedState.processState = 'sending';
-
-          axios.get(`https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(watchedState.currentUrl)}`)
-            .then((res) => {
-              if (res.status === 200) {
-                watchedState.processState = 'success';
-                watchedState.error = 'successfully';
-                watchedState.addedFeeds.push(watchedState.currentUrl);
-
-                const normalized = parser(res.data.contents);
-
-                const feedId = _.uniqueId();
-
-                const postsWithIds = normalized.posts.map(({ title, link, description }) => ({
-                  feedId, title, link, id: _.uniqueId(), description,
-                }));
-
-                watchedState.data.feeds = [...watchedState.data.feeds, { id: feedId, title: normalized.title, description: normalized.description }];
-
-                watchedState.data.posts = [...watchedState.data.posts, ...postsWithIds];
-
-                updatePosts(watchedState, 5000);
-              }
-            })
-            .catch((err) => {
-              if (err === 'Ошибка парсинга') {
-                watchedState.processState = 'error';
-                watchedState.error = 'erorrs.notContainValidRss';
-                return;
-              }
-              watchedState.processState = 'error';
-              watchedState.error = 'erorrs.netWorkErorr';
-            });
-        })
-        .catch(() => {
-          watchedState.processState = 'error';
-          watchedState.error = 'erorrs.notValid';
-        });
-    }
+    validateUrl(watchedState, schema);
   });
 
   elements.posts.addEventListener('click', (e) => {
@@ -163,6 +176,4 @@ const app = () => {
       }
     }
   });
-};
-
-app();
+}
