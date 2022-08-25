@@ -5,10 +5,11 @@ export default (data) => {
 
   const parser = new DOMParser();
   const parsed = parser.parseFromString(data, 'application/xml');
+  const parseError = parsed.querySelector('parsererror');
 
-  if (parsed.querySelector('parsererror')) {
-    const error = new Error();
-    error.message = 'Ошибка парсинга';
+  if (parseError) {
+    const error = new Error(parseError.textContent);
+    error.isParsingError = true;
     throw error;
   }
 
