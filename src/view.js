@@ -1,4 +1,5 @@
 /* eslint-disable no-param-reassign */
+import onChange from 'on-change';
 
 const renderList = (posts) => posts.map((post) => {
   const li = document.createElement('li');
@@ -26,13 +27,16 @@ const renderList = (posts) => posts.map((post) => {
   return li;
 });
 
-const renderModal = (elements, activePost) => {
+const renderModal = (elements, state) => {
+  const id = state.modal;
+  const activePost = state.data.posts.find((post) => post.id === id);
+
   const titleModal = elements.modal.querySelector('.modal-title');
   const descriptionModal = elements.modal.querySelector('.modal-body');
   const fullArticleLink = elements.modal.querySelector('a');
 
-  titleModal.innerHTML = activePost.title;
-  descriptionModal.innerHTML = activePost.description;
+  titleModal.textContent = activePost.title;
+  descriptionModal.textContent = activePost.description;
   fullArticleLink.setAttribute('href', activePost.link);
 };
 
@@ -79,11 +83,7 @@ const renderPosts = (posts, prevPosts, container) => {
 };
 
 const renderFeeds = (feeds, container) => {
-  if (container.hasChildNodes()) {
-    const listGroup = container.querySelector('ul');
-    listGroup.innerHTML = feeds.map((feed) => `<li class="list-group-item border-0 border-end-0"><h3 class="h6 m-0">${feed.title}</h3><p class="m-0 small text-black-50">${feed.description}</p></li>`).join('');
-    return;
-  }
+  container.innerHTML = '';
 
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -97,7 +97,23 @@ const renderFeeds = (feeds, container) => {
 
   const listGroup = document.createElement('ul');
   listGroup.classList.add('list-group', 'border-0', 'rounded-0');
-  listGroup.innerHTML = feeds.map((feed) => `<li class="list-group-item border-0 border-end-0"><h3 class="h6 m-0">${feed.title}</h3><p class="m-0 small text-black-50">${feed.description}</p></li>`).join('');
+
+  feeds.forEach(({ title, description }) => {
+    const li = document.createElement('li');
+    li.classList.add('list-group-item', 'border-0', 'border-end-0');
+
+    const h = document.createElement('h3');
+    h.classList.add('h6', 'm-0');
+    h.textContent = title;
+    li.append(h);
+
+    const p = document.createElement('p');
+    p.classList.add('m-0', 'small', 'text-black-50');
+    p.textContent = description;
+    li.append(p);
+
+    listGroup.append(li);
+  });
 
   cardBody.append(cardTitle);
   card.append(cardBody);
@@ -140,7 +156,7 @@ const handleProcessState = (elements, processState) => {
   }
 };
 
-export default (elements, i18nInstance) => (path, value, prevValue) => {
+const render = (elements, i18nInstance, state) => (path, value, prevValue) => {
   const target = path.split('.')[1];
   const container = elements[target];
 
@@ -165,11 +181,14 @@ export default (elements, i18nInstance) => (path, value, prevValue) => {
       renderShownPosts(elements, value);
       break;
 
-    case 'modal.post':
-      renderModal(elements, value);
+    case 'modal':
+      renderModal(elements, state);
       break;
 
     default:
       break;
   }
 };
+
+// eslint-disable-next-line max-len
+export default (state, elements, i18nInstance) => onChange(state, render(elements, i18nInstance, state));

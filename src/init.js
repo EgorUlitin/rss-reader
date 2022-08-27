@@ -1,8 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable no-param-reassign */
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap';
-import onChange from 'on-change';
 import axios from 'axios';
 import i18n from 'i18next';
 import _ from 'lodash';
@@ -35,6 +33,7 @@ const updatePosts = (watchedState) => {
             id: _.uniqueId(),
             title: post.title,
             link: post.link,
+            description: post.description,
             feedId: existingFeed.id,
           }));
 
@@ -115,7 +114,7 @@ export default () => {
   const state = {
     processState: 'filling',
     error: '',
-    modal: { post: null },
+    modal: null,
     shownPosts: [],
     addedFeeds: [],
     data: {
@@ -124,7 +123,7 @@ export default () => {
     },
   };
 
-  const watchedState = onChange(state, render(elements, i18nInstance));
+  const watchedState = render(state, elements, i18nInstance);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -160,10 +159,8 @@ export default () => {
     if (id) {
       watchedState.shownPosts.push(id);
 
-      if (e.target.getAttribute('type') === 'button') {
-        const activePost = watchedState.data.posts.find((post) => post.id === id);
-        watchedState.modal.post = activePost;
-      }
+      const activePost = watchedState.data.posts.find((post) => post.id === id);
+      watchedState.modal = activePost.id;
     }
   });
 
