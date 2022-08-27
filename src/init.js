@@ -7,7 +7,7 @@ import _ from 'lodash';
 import * as yup from 'yup';
 import resources from './locales/index.js';
 import parser from './parser.js';
-import render from './view.js';
+import view from './view.js';
 
 const getProxyUrl = (link) => `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(link)}`;
 
@@ -123,7 +123,7 @@ export default () => {
     },
   };
 
-  const watchedState = render(state, elements, i18nInstance);
+  const watchedState = view(state, elements, i18nInstance);
 
   elements.form.addEventListener('submit', (e) => {
     e.preventDefault();
