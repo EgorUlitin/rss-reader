@@ -41,7 +41,6 @@ const renderModal = (elements, state) => {
 };
 
 const renderShownPosts = (elements, postIds) => {
-  // console.log(postIds);
   const container = elements.posts;
   [...container.querySelectorAll('a')]
     .filter((a) => postIds.includes(a.dataset.id))
