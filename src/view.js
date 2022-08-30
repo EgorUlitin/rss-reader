@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 import onChange from 'on-change';
 
-const renderList = (posts) => posts.map((post) => {
+const renderList = (posts, i18nInstance) => posts.map((post) => {
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 
@@ -19,7 +19,7 @@ const renderList = (posts) => posts.map((post) => {
   button.dataset.id = post.id;
   button.dataset.bsToggle = 'modal';
   button.dataset.bsTarget = '#modal';
-  button.textContent = 'Просмотр';
+  button.textContent = i18nInstance.t('view');
 
   li.append(a);
   li.append(button);
@@ -57,7 +57,7 @@ const renderPosts = (posts, prevPosts, container, i18nInstance) => {
   if (container.hasChildNodes() && difference !== 0) {
     const newPosts = posts.slice(-difference);
     const listGroup = container.querySelector('ul');
-    renderList(newPosts).forEach((li) => listGroup.append(li));
+    renderList(newPosts, i18nInstance).forEach((li) => listGroup.append(li));
 
     return;
   }
@@ -74,7 +74,7 @@ const renderPosts = (posts, prevPosts, container, i18nInstance) => {
 
   const listGroup = document.createElement('ul');
   listGroup.classList.add('list-group', 'border-0', 'rounded-0');
-  renderList(posts).forEach((li) => listGroup.append(li));
+  renderList(posts, i18nInstance).forEach((li) => listGroup.append(li));
 
   cardBody.append(cardTitle);
   card.append(cardBody);
