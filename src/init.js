@@ -159,8 +159,7 @@ export default () => {
     if (id) {
       watchedState.shownPosts.push(id);
 
-      const activePost = watchedState.data.posts.find((post) => post.id === id);
-      watchedState.modal = activePost.id;
+      watchedState.modal = id;
     }
   });
 
