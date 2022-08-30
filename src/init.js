@@ -50,7 +50,9 @@ const updatePosts = (watchedState) => {
   Promise.all(promises).finally(() => setTimeout(() => updatePosts(watchedState), 5000));
 };
 
-const loadRss = (watchedState, proxyUrl) => {
+const loadRss = (watchedState, url) => {
+  const proxyUrl = getProxyUrl(url);
+
   axios.get(proxyUrl)
     .then((res) => {
       if (res.status === 200) {
@@ -58,6 +60,8 @@ const loadRss = (watchedState, proxyUrl) => {
         watchedState.error = 'successfully';
 
         const normalized = parser(res.data.contents);
+
+        watchedState.addedFeeds.push(url);
 
         const feedId = _.uniqueId();
 
@@ -115,7 +119,9 @@ export default () => {
     processState: 'filling',
     error: '',
     modal: null,
-    shownPosts: [],
+    uiState: {
+      shownPosts: [],
+    },
     addedFeeds: [],
     data: {
       posts: [],
@@ -136,10 +142,7 @@ export default () => {
         watchedState.error = '';
         watchedState.processState = 'sending';
 
-        const proxyUrl = getProxyUrl(url);
-
-        loadRss(watchedState, proxyUrl);
-        watchedState.addedFeeds.push(url);
+        loadRss(watchedState, url);
       })
       .catch((err) => {
         if (err.message === 'rssExist') {
@@ -157,8 +160,7 @@ export default () => {
     const { id } = e.target.dataset;
 
     if (id) {
-      watchedState.shownPosts.push(id);
-
+      watchedState.uiState.shownPosts.push(id);
       watchedState.modal = id;
     }
   });

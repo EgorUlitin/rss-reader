@@ -10,5 +10,7 @@ export default {
     yupErorrs: {
       url: 'Это должно быть валидным URL',
     },
+    posts: 'Посты',
+    feeds: 'Фиды',
   },
 };

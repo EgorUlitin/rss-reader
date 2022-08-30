@@ -51,9 +51,10 @@ const renderShownPosts = (elements, postIds) => {
     });
 };
 
-const renderPosts = (posts, prevPosts, container) => {
-  if (container.hasChildNodes()) {
-    const difference = posts.length - prevPosts.length;
+const renderPosts = (posts, prevPosts, container, i18nInstance) => {
+  const difference = posts.length - prevPosts.length;
+
+  if (container.hasChildNodes() && difference !== 0) {
     const newPosts = posts.slice(-difference);
     const listGroup = container.querySelector('ul');
     renderList(newPosts).forEach((li) => listGroup.append(li));
@@ -69,7 +70,7 @@ const renderPosts = (posts, prevPosts, container) => {
 
   const cardTitle = document.createElement('h2');
   cardTitle.classList.add('card-title', 'h4');
-  cardTitle.textContent = 'Посты';
+  cardTitle.textContent = i18nInstance.t('posts');
 
   const listGroup = document.createElement('ul');
   listGroup.classList.add('list-group', 'border-0', 'rounded-0');
@@ -82,8 +83,8 @@ const renderPosts = (posts, prevPosts, container) => {
   container.append(card);
 };
 
-const renderFeeds = (feeds, container) => {
-  container.innerHTML = '';
+const renderFeeds = (feeds, container, i18nInstance) => {
+  container.textContent = '';
 
   const card = document.createElement('div');
   card.classList.add('card', 'border-0');
@@ -93,7 +94,7 @@ const renderFeeds = (feeds, container) => {
 
   const cardTitle = document.createElement('h2');
   cardTitle.classList.add('card-title', 'h4');
-  cardTitle.textContent = 'Фиды';
+  cardTitle.textContent = i18nInstance.t('feeds');
 
   const listGroup = document.createElement('ul');
   listGroup.classList.add('list-group', 'border-0', 'rounded-0');
@@ -123,7 +124,7 @@ const renderFeeds = (feeds, container) => {
 };
 
 const renderErrors = (elements, value, i18nInstance) => {
-  elements.outputError.innerHTML = i18nInstance.t(value);
+  elements.outputError.textContent = i18nInstance.t(value);
 };
 
 const handleProcessState = (elements, processState) => {
@@ -166,18 +167,18 @@ const render = (elements, i18nInstance, state) => (path, value, prevValue) => {
       break;
 
     case 'data.posts':
-      renderPosts(value, prevValue, container);
+      renderPosts(value, prevValue, container, i18nInstance);
       break;
 
     case 'data.feeds':
-      renderFeeds(value, container);
+      renderFeeds(value, container, i18nInstance);
       break;
 
     case 'error':
       renderErrors(elements, value, i18nInstance);
       break;
 
-    case 'shownPosts':
+    case 'uiState.shownPosts':
       renderShownPosts(elements, value);
       break;
 

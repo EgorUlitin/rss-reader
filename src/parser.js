@@ -1,6 +1,8 @@
 export default (data) => {
   const feed = {
     posts: [],
+    title: null,
+    description: null,
   };
 
   const parser = new DOMParser();
@@ -30,11 +32,11 @@ export default (data) => {
         break;
       }
       case 'title': {
-        feed[item.nodeName] = item.textContent;
+        feed.title = item.textContent;
         break;
       }
       case 'description': {
-        feed[item.nodeName] = item.textContent;
+        feed.description = item.textContent;
         break;
       }
       default:
