@@ -7,8 +7,8 @@
     "on-change": "^4.0.1",
     "yup": "^0.32.11"
   },
-  "name": "@hexlet/code",
-  "description": "[![Actions Status](https://github.com/EgorUlitin/frontend-project-lvl3/workflows/hexlet-check/badge.svg)](https://github.com/EgorUlitin/frontend-project-lvl3/actions)",
+  "name": "rss-reader",
+  "description": "rss reader",
   "version": "1.0.0",
   "main": "src/index.js",
   "devDependencies": {
@@ -33,13 +33,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/EgorUlitin/frontend-project-lvl3.git"
+    "url": "git+https://github.com/EgorUlitin/rss-reader.git"
   },
   "keywords": [],
   "author": "egorulitin",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/EgorUlitin/frontend-project-lvl3/issues"
+    "url": "https://github.com/EgorUlitin/rss-reader/issues"
   },
-  "homepage": "https://github.com/EgorUlitin/frontend-project-lvl3#readme"
+  "homepage": "https://github.com/EgorUlitin/rss-reader#readme"
 }
